@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { StyleSheet, View, TextInput, Pressable, ScrollView } from 'react-native'
+import React, { useLayoutEffect, useState } from 'react'
+import { StyleSheet, View, TextInput, Pressable, ScrollView, Alert } from 'react-native'
 import { TextButton } from '../../../shared/ui/text-button/text-button'
 import {KeyboardAvoidingWrapper, Info, Spacing} from '../../../shared/ui/layouts'
 import { ErrorsInput, Selector } from '../../../shared/ui/input'
@@ -9,9 +9,13 @@ import { MaskedTextInput } from 'react-native-mask-text'
 import { useAuthContext } from '../model/context'
 import { Controller } from 'react-hook-form'
 import { Modal } from './Modal'
-import { rules } from '../../../shared/constants/rules'
+import { getRules } from '../../../shared/constants/rules'
+import { useTranslation } from 'react-i18next'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { LANGUAGE_KEY } from '../../../shared/constants/key'
 
 export const DriverScreen = () => {
+    const { t, i18n } = useTranslation();
     const { 
         control, 
         watch, 
@@ -23,9 +27,32 @@ export const DriverScreen = () => {
         isProfile,
         handleLogout
     } = useAuthContext() 
+    const rules = getRules(t);
+
     const [modalCitizenship, setModalCitizenship] = useState<boolean>(false);
     const [modalIsWhatsApp, setModalIsWhatsApp] = useState<boolean>(false);
+    const [modalLanguage, setModalLanguage] = useState<boolean>(false);
+    const [language, setLanguage] = useState<string>('');
     const [modalIsWhatsAppAditional, setModalIsWhatsAppAditional] = useState<boolean>(false);
+
+    const handleSetLanguage = async () => {
+       const lang =  await AsyncStorage.getItem(LANGUAGE_KEY)
+       if (lang) {
+         setLanguage(lang)
+       }
+    }
+
+    const handleLanguage = async (value: string) => {
+        const lang = value === "English" ? "en" : "ru"
+        await AsyncStorage.setItem(LANGUAGE_KEY, lang)
+        i18n.changeLanguage(lang)
+        setLanguage(lang)
+        setModalLanguage(false)
+    }
+
+    useLayoutEffect(() => {
+        handleSetLanguage()
+    }, [])
 
     return (
         <KeyboardAvoidingWrapper style={styles.container}>
@@ -40,15 +67,28 @@ export const DriverScreen = () => {
                         {
                             isProfile ?
                                 <Info 
-                                    title='Профиль'
+                                    title={t('profile')}
                                 />
                                 :
                                 <Info 
-                                    title='вы водитель?'
-                                    description={`Если вы самостоятельно выполняете перевозки укажите “да” и заполните необходимые данные.${'\n'}${'\n'}Если у вас работают наемные водители, укажите “нет”. Данные водителя можно будет заполнить на следующем этапе регистрации.`}
+                                    title={t('driverTitle')}
+                                    description={t('driverDescription')}
                                 />
                         }
                         <View style={styles.form}>
+                            {
+                                isProfile && 
+                                <View style={styles.inputWrapper}>
+                                    <Selector
+                                        handle={() => setModalLanguage(true)}
+                                        label={t('language')}
+                                        showStar={false}
+                                        value={language == "en" ? "English" : "Русский"}
+                                        valueColor='#252526'
+                                    />
+                                </View>
+                            }
+
                             <View style={styles.inputWrapper}>
                                 <Controller
                                     control={control}
@@ -57,7 +97,7 @@ export const DriverScreen = () => {
                                     render={({ field: { value, onChange } }) => 
                                         <TextInput 
                                             value={value}
-                                            placeholder='Фамилия *'
+                                            placeholder={t('lastname')}
                                             placeholderTextColor={"#808080"}
                                             onChangeText={onChange}
                                             style={[styles.input, styles.inputBorder]}
@@ -72,7 +112,7 @@ export const DriverScreen = () => {
                                     render={({ field: { value, onChange } }) => 
                                         <TextInput 
                                             value={value}
-                                            placeholder='Имя *'
+                                            placeholder={t('name')}
                                             placeholderTextColor={"#808080"}
                                             onChangeText={onChange}
                                             style={[styles.input, styles.inputBorder]}
@@ -86,7 +126,7 @@ export const DriverScreen = () => {
                                     render={({ field: { value, onChange } }) => 
                                         <TextInput 
                                             value={value}
-                                            placeholder='Отчество'
+                                            placeholder={t('surname')}
                                             placeholderTextColor={"#808080"}
                                             onChangeText={onChange}
                                             style={styles.input}
@@ -103,9 +143,9 @@ export const DriverScreen = () => {
                                         <Selector
                                             error={errors.birthday?.message}
                                             handle={handleDatePicker}
-                                            label='Дата рождения'
+                                            label={t('birthday')}
                                             valueColor={value ? '#252526' : '#808080'}
-                                            value={value || 'Не указано'}
+                                            value={value || t('notSpecified')}
                                         />
                                     )}
                                 />
@@ -118,7 +158,7 @@ export const DriverScreen = () => {
                                     render={({ field: { value } }) => (
                                         <Selector 
                                             error={errors.citizenship?.message}
-                                            label={value || 'Гражданство'}
+                                            label={value || t('citizenship')}
                                             handle={() => setModalCitizenship(true)}
                                             labelColor={value ? '#252526' : '#808080'}
                                             rightContent={<ChevronDownIcon />}
@@ -132,7 +172,7 @@ export const DriverScreen = () => {
                                     <LightText 
                                         lineHeight={22} 
                                         color="#808080"
-                                        children="Номер телефона"
+                                        children={t('phone')}
                                     />
                                     <LightText 
                                         lineHeight={22} 
@@ -147,7 +187,7 @@ export const DriverScreen = () => {
                                     <LightText 
                                         lineHeight={22} 
                                         color="#808080"
-                                        children="Зарегистрирован в WhatsApp"
+                                        children={t('registeredWhatsApp')}
                                     />
                                     <LightText 
                                         lineHeight={22} 
@@ -162,7 +202,7 @@ export const DriverScreen = () => {
                                     <LightText 
                                         lineHeight={22} 
                                         color="#808080"
-                                        children="Доп.номер"
+                                        children={t('additionalNumber')}
                                     />
                                     <View style={styles.maskedTextWrapper}>
                                         <Controller
@@ -195,7 +235,7 @@ export const DriverScreen = () => {
                                     <LightText 
                                         lineHeight={22} 
                                         color="#808080"
-                                        children="Зарегистрирован в WhatsApp"
+                                        children={t('registeredWhatsApp')}
                                     />
                                     <LightText 
                                         lineHeight={22} 
@@ -207,7 +247,7 @@ export const DriverScreen = () => {
 
                             <View style={styles.inputWrapper}>
                                 <Selector 
-                                    label='ВУ'
+                                    label={t('vu')}
                                     style={styles.inputBorder}
                                     rightContent={
                                         <Controller
@@ -218,7 +258,7 @@ export const DriverScreen = () => {
                                                 <TextInput 
                                                     value={value}
                                                     style={styles.inputSelector}
-                                                    placeholder='Номер ВУ' 
+                                                    placeholder={t('vuNumber')}
                                                     onChangeText={onChange}
                                                     placeholderTextColor={"#252526"}
                                                 />
@@ -228,7 +268,7 @@ export const DriverScreen = () => {
                                 />
                                 <ErrorsInput error={errors.vy?.message} />
                                 <Selector 
-                                    label='Дата выдачи'
+                                    label={t('dateIssue')}
                                     rightContent={
                                         <Controller
                                             control={control}
@@ -237,7 +277,7 @@ export const DriverScreen = () => {
                                             render={({ field: { value, onChange } }) => 
                                                 <MaskedTextInput
                                                     mask='99.99.9999'
-                                                    placeholder='Не указано' 
+                                                    placeholder={t('notSpecified')}
                                                     value={value}
                                                     placeholderTextColor="#808080"
                                                     onChangeText={text=> onChange(text)}
@@ -252,41 +292,50 @@ export const DriverScreen = () => {
                             </View>
                         </View>
                         <Spacing direction="vertical" value={5} />
-                        <LightText lineHeight={17} size={14} color='#808080'>
-                            Укажите номер и дату выдачи водительского удостоверения 
-                        </LightText>
+                        <LightText 
+                            lineHeight={17} 
+                            size={14} 
+                            color='#808080'
+                            children={t('license')}
+                        />
                         <View style={styles.footer}>
                             <TextButton  
                                 disabled={loading}
                                 loading={loading}
-                                label={isProfile ? 'сохранить изменения' : 'продолжить'}
+                                label={isProfile ? t('saveChanges') : t('continue')}
                                 onPress={onSubmit}
                             />
                             {
                                 isProfile && 
                                 <TextButton  
-                                    label={'Выйти'}
+                                    label={t('signOut')}
                                     background='red'
                                     onPress={handleLogout}
                                 />
                             }
-                            
                         </View>
                     </View>
                 </ScrollView>
 
                 <Modal 
                     modalVisible={modalCitizenship}
-                    data={[{value: 'РК'}]}
+                    data={[{value: t('RK')}]}
                     handleClose={() => setModalCitizenship(false)}
                     handleSelectValue={(value: string) => {
                         setValue('citizenship', value, { shouldValidate: true })
                         setModalCitizenship(false)
                     }}
-                />
+                /> 
+                <Modal 
+                    modalVisible={modalLanguage}
+                    data={[{value: "Русский"}, {value: "English"}]}
+                    handleClose={() => setModalLanguage(false)}
+                    handleSelectValue={handleLanguage}
+                /> 
+                
                 <Modal 
                     modalVisible={modalIsWhatsApp}
-                    data={[{value: 'Да'}, {value: 'Нет'}]}
+                    data={[{value: t('yes')}, {value: t('no')}]}
                     handleClose={() => setModalIsWhatsApp(false)}
                     handleSelectValue={(value: string) => {
                         setValue('isWhatsApp', value)
@@ -295,7 +344,7 @@ export const DriverScreen = () => {
                 />
                 <Modal 
                     modalVisible={modalIsWhatsAppAditional}
-                    data={[{value: 'Да'}, {value: 'Нет'}]}
+                    data={[{value: t('yes')}, {value: t('no')}]}
                     handleClose={() => setModalIsWhatsAppAditional(false)}
                     handleSelectValue={(value: string) => {
                         setValue('isWhatsAppAditional', value)

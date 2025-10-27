@@ -7,10 +7,12 @@ import { useAuthContext } from '../model/context'
 import { useAppNavigation, useCode, useDelayedAction } from '../../../shared/lib/hooks'
 import { AuthStackParamList } from '../../../shared/types/navigation'
 import { Controller } from 'react-hook-form'
+import { useTranslation } from "react-i18next";
 
 const SUCCESS_CODE = '123456'
 
 export const CodeScreen = () => {
+    const { t } = useTranslation();
     const { control, watch } = useAuthContext()
     const { pop, navigate } = useAppNavigation<AuthStackParamList>()
     const {timer, resend} = useCode()
@@ -29,8 +31,8 @@ export const CodeScreen = () => {
                 disabled={timer > 0}
                 label={
                     !timer ?
-                    "Отправить повторно" :
-                    `Отправить повторно через 00:${timer < 10 ? '0': ''}${timer}`
+                    t('resend') :
+                    `${t('resendVia')} 00:${timer < 10 ? '0': ''}${timer}`
                 }
                 onPress={resend}
             />
@@ -52,8 +54,8 @@ export const CodeScreen = () => {
                 <View style={styles.wrapper}>
                     <Spacing direction="vertical" value={8} />
                     <Info 
-                        title='Введите код из SMS'
-                        description={`Проверочный код был отправлен на номер:${'\n'}${watch('phone')}`}
+                        title={t('codeTitle')}
+                        description={t('codeDescription', {phone: watch('phone')})}
                     />
                     <Spacing direction="vertical" value={35} />
                     <Controller

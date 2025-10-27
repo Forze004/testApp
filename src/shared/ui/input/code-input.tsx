@@ -2,6 +2,7 @@ import React, { useRef } from 'react'
 import { Pressable, StyleSheet, TextInput, View } from 'react-native'
 import { RegularText, SemiboldText } from '../texts'
 import { ErrorsInput } from './errors'
+import { useTranslation } from 'react-i18next'
 
 type CodeInputProps = {
   code: string
@@ -16,6 +17,7 @@ export const CodeInput = ({
     autoFocus,
     error
 }: CodeInputProps) => {
+    const { t } = useTranslation();
     const input = useRef<TextInput>(null)
 
     return (
@@ -44,7 +46,7 @@ export const CodeInput = ({
             />
             {error && code.length == 6 && 
                 <View style={styles.error}>
-                    <ErrorsInput error="Не верный код" />
+                    <ErrorsInput error={t('incorrectCode')} />
                 </View>
             }
         </View>

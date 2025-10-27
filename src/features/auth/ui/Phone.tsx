@@ -9,9 +9,11 @@ import { useAuthContext } from '../model/context';
 import { Controller } from 'react-hook-form';
 import { AuthStackParamList } from '../../../shared/types/navigation';
 import { useDelayedAction, useAppNavigation } from '../../../shared/lib/hooks';
-
+import { ProfileIcon } from '../../../shared/ui/icons';
+import { useTranslation } from "react-i18next";
 
 export const PhoneScreen = () => {
+    const { t } = useTranslation();
     const [policy, setPolicy] = useState<boolean>(false)
     const { control, watch } = useAuthContext()
     const { navigate } = useAppNavigation<AuthStackParamList>()
@@ -20,10 +22,12 @@ export const PhoneScreen = () => {
     return (
         <KeyboardAvoidingWrapper style={{flex: 1}}>
             <View style={styles.container}>
+                <ProfileIcon />
+                <Spacing  direction="vertical" value={25} />
                 <Info 
                     titleTextTransform="uppercase"
-                    title={`Личный кабинет${'\n'}Transline`}
-                    description='Для входа в личный кабинет введите свой номер телефона, на него будет отправлено SMS с проверочным кодом'
+                    title={t('title')}
+                    description={t('description')}
                 />
                 <Controller
                     control={control}
@@ -47,15 +51,18 @@ export const PhoneScreen = () => {
                     >
                         {policy && <View style={styles.checkboxActive} />}
                     </Pressable>
-                    <LightText size={14} color='#454545'>
-                        Согласен с политикой конфиденциальности 
-                    </LightText>
+                    <LightText 
+                        children={t('policy')}
+                        size={14} 
+                        lineHeight={16}
+                        color='#454545' 
+                    />
                 </View>
                 <Spacing  direction="vertical" value={10} />
                 <TextButton  
                     loading={loading}
                     disabled={watch('phone').length < 18 || !policy}
-                    label='войти'
+                    label={t('signIn')}
                     onPress={send}
                 />
             </View> 
@@ -73,7 +80,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        gap: 5
+        gap: 10
     },
     checkbox: {
         borderColor: '#D9D9D9',

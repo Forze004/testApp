@@ -5,6 +5,7 @@ import { DateTime } from "luxon";
 import { Platform } from "react-native";
 import { dateFormat } from "../../../shared/lib/date";
 import { useAppFlow } from "../../../processes/app-flow";
+import { useTranslation } from "react-i18next";
 
 export const AuthContext = createContext({} as ReturnType<typeof useAuth>);
 export const useAuthContext = () => useContext(AuthContext);
@@ -44,6 +45,7 @@ const defaultValues = {
 }
 
 export const useAuth = () => {
+    const { t } = useTranslation();
     const { control, handleSubmit, reset, getValues, watch, setValue, setError, clearErrors } = useForm<UserIn>({
         mode: "onChange",
         defaultValues,
@@ -62,8 +64,8 @@ export const useAuth = () => {
             DateTimePickerAndroid.open({
                 mode: "date",
                 value: initialDate,
-                positiveButton: { label: "Выбрать", textColor: "#01163E" },
-                negativeButton: { label: "Отмена", textColor: "#01163E" },
+                positiveButton: { label: t('choose'), textColor: "#01163E" },
+                negativeButton: { label: t('cancel'), textColor: "#01163E" },
                 maximumDate: DateTime.now().toJSDate(),
                 minimumDate: DateTime.fromObject({
                     year: 1950,
@@ -79,11 +81,11 @@ export const useAuth = () => {
                         const now = DateTime.now();
                         const age = now.diff(selected, "years").years;
                         if (age < 18) {
-                            setError("birthday", { type: "validate", message: "Возраст должен быть не менее 18 лет" });
+                            setError("birthday", { type: "validate", message: t('minAge') });
                             return;
                         }
                         if (age >= 65) {
-                            setError("birthday", { type: "validate", message: "Возраст должен быть меньше 65 лет" });
+                            setError("birthday", { type: "validate", message: t('maxAge') });
                             return;
                         }
                         clearErrors("birthday");

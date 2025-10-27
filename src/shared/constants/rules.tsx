@@ -1,43 +1,36 @@
-const lastname = { 
-    required: 'Фамилия обязателена к заполнению',
-    minLength: { value: 1, message: 'Фамилия слишком короткая' },
+export const getRules = (t:any) => ({
+  lastname: {
+    required: t('lastnameRulesRequired'),
     pattern: {
-        value: /^[a-zA-Zа-яА-ЯёЁ_]+$/,
-        message: 'Только буквы (латинские или русские) и подчёркивания, без цифр',
+      value: /^[a-zA-Zа-яА-ЯёЁ_]+$/,
+      message: t('lastnameRulesPattern'),
     },
-} 
-
-const name = { 
-    required: 'Имя обязателено к заполнению',
-    minLength: { value: 1, message: 'Имя слишком короткое' },
+  },
+  name: {
+    required: t('nameRulesRequired'),
     pattern: {
-        value: /^[a-zA-Zа-яА-ЯёЁ_]+$/,
-        message: 'Только буквы (латинские или русские) и подчёркивания, без цифр',
+      value: /^[a-zA-Zа-яА-ЯёЁ_]+$/,
+      message: t('lastnameRulesPattern'),
     },
-} 
-
-const vy = { 
-    required: 'ВУ обязателено к заполнению',
-    minLength: { value: 9, message: 'ВУ минимальное кол-во цифр 9' },
-    maxLength: { value: 9, message: 'ВУ максимальное кол-во цифр 9' },
+  },
+  vy: {
+    required: t('vuRulesRequired'),
+    minLength: { value: 9, message: t('vuMinLength') },
+    maxLength: { value: 9, message: t('vuMaxLength') },
     pattern: {
-        value: /^[0-9]+$/,
-        message: 'Только цифры',
+      value: /^[0-9]+$/,
+      message: t('Только цифры'),
     },
-}
-
-const issueDate = { 
-    required: 'Дата выдачи обязателено к заполнению',
-    minLength: { value: 10, message: 'не корректная дата' },
-    maxLength: { value: 10, message: 'не корректная дата' },
-}
-
-const citizenship = { 
-    required: 'Дата рождения обязателено к заполнению',
-} 
-
-const birthday = { 
-    required: 'Дата рождения обязателено к заполнению',
-} 
-
-export const rules = { lastname, name, birthday, vy, issueDate, citizenship }
+  },
+  issueDate: {
+    required: t('issueDateRequired'),
+    minLength: { value: 10, message: t('issueDateIsNotCorrect') },
+    maxLength: { value: 10, message: t('issueDateIsNotCorrect') },
+  },
+  citizenship: {
+    required: t('citizenshipRequired'),
+  },
+  birthday: {
+    required: t('birthdayRequired'),
+  },
+});

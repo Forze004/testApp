@@ -12,6 +12,7 @@ type Props = {
     rightContent?: ReactNode
     style?: ViewStyle
     error?: string
+    showStar?: boolean
 }
 
 export const Selector = ({
@@ -22,7 +23,8 @@ export const Selector = ({
     labelColor,
     style,
     error,
-    valueColor
+    valueColor,
+    showStar = true
 }: Props) => {
     return (
         <>
@@ -31,7 +33,7 @@ export const Selector = ({
                     lineHeight={22} 
                     color={labelColor ? labelColor : '#252526'}
                 >
-                    {label} <LightText children="*" color='#05C0E6' />
+                    {label} {showStar && <LightText children="*" color='#05C0E6' />}
                 </LightText> 
 
                 {

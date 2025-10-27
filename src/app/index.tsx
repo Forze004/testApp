@@ -3,10 +3,9 @@ import { AppStack } from "./navigation";
 import { withProviders } from "./providers";
 import { StatusBar, useColorScheme } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
-
+ 
 function App() {
     const isDarkMode = useColorScheme() === 'dark';
-
     return (
         <SafeAreaView style={{flex: 1}}>
             <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
@@ -17,8 +16,4 @@ function App() {
 
 const AppWithProviders = withProviders(App);
 
-export default () =>
-    <>
-        {AppWithProviders()}
-    </>
-;
+export default () => AppWithProviders()

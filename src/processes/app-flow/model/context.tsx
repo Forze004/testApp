@@ -58,7 +58,7 @@ export const AppFlowProvider = ({ children }: { children: ReactNode }) => {
 
     const signOut = async () => {
         dispatch({ type: 'SIGN_OUT' })
-        await AsyncStorage.clear()
+        await AsyncStorage.removeItem(STORE_KEY)
     }
 
     useEffect(() => {

@@ -5,6 +5,7 @@ import { TransportationScreen } from '../../screens/transportation'
 import { MenuIcon, TruckIcon } from '../../shared/ui/icons'
 import { DriverScreen } from '../../features/auth/ui/Driver'
 import { AuthContextProvider, useAuth } from '../../features/auth/model'
+import { useTranslation } from 'react-i18next'
 
 const TabBar = createBottomTabNavigator<BottomBarParamList>()
 
@@ -13,6 +14,8 @@ const ACTIVE_COLOR = "#05C0E6"
 
 export const BottomBar = () => {
     const value = useAuth()
+    const { t } = useTranslation();
+
     
     return (
         <AuthContextProvider value={value}>
@@ -23,7 +26,7 @@ export const BottomBar = () => {
                 <TabBar.Screen 
                     name={'TransportationScreen'}
                     options={{
-                        tabBarLabel: 'Перевозки',
+                        tabBarLabel: t('transportation'),
                         tabBarActiveTintColor: ACTIVE_COLOR,
                         tabBarInactiveTintColor: INACTIVE_COLOR,
                         tabBarIcon: ({ focused }) => 
@@ -36,7 +39,7 @@ export const BottomBar = () => {
                 <TabBar.Screen
                     name={'ProfileScreen'}
                     options={{
-                        tabBarLabel: 'Меню',
+                        tabBarLabel: t('menu'),
                         tabBarActiveTintColor: ACTIVE_COLOR,
                         tabBarInactiveTintColor: INACTIVE_COLOR,
                         tabBarIcon: ({ focused }) => 

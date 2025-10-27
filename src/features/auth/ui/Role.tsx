@@ -6,11 +6,13 @@ import { useAuthContext } from '../model/context'
 import { TextButton } from '../../../shared/ui/text-button/text-button'
 import { useAppNavigation, useDelayedAction } from '../../../shared/lib/hooks'
 import { AuthStackParamList } from '../../../shared/types/navigation'
+import { useTranslation } from "react-i18next";
 
 const CARRIER = "carrier"
 const CUSTOMER = "customer"
 
 export const RoleScreen = () => {
+    const { t } = useTranslation();
     const { setValue, watch } = useAuthContext()
     const { navigate } = useAppNavigation<AuthStackParamList>()
     const { send, loading } = useDelayedAction(() => navigate('CodeScreen'));
@@ -21,8 +23,8 @@ export const RoleScreen = () => {
             <View style={styles.wrapper}>
                 <Spacing direction="vertical" value={8} />
                 <Info 
-                    title='регистрация'
-                    description={`Выберите, как вы хотите использовать${'\n'}приложение`}
+                    title={t('roleTitle')}
+                    description={t('roleDescription')}
                 />
             </View>
             <Spacing direction="vertical" value={20} />
@@ -34,8 +36,8 @@ export const RoleScreen = () => {
                     handle={() => setValue("role", CUSTOMER)}
                     logo={<LuggageIcon />}
                     image={<FrameLineIcon />}
-                    title='как заказчик'
-                    description='Контролируйте выполнение заявок в реальном времени'
+                    title={t('customerTitle')}
+                    description={t('customerDescription')}
                 />
                 <Spacing direction="vertical" value={25} />
                 <Card 
@@ -43,14 +45,14 @@ export const RoleScreen = () => {
                     handle={() => setValue("role", CARRIER)}
                     logo={<DeliveryIcon />}
                     image={<FrameMenuIcon />}
-                    title='как перевозчик'
-                    description='Получайте актуальную информацию о своих перевозках'
+                    title={t('carrierTitle')}
+                    description={t('carrierDescription')}
                 />
             </View>
 
             <View style={styles.footer}>
                 <TextButton  
-                    label='Далее'
+                    label={t('next')}
                     loading={loading}
                     disabled={watch('role').length === 0}
                     onPress={send}
