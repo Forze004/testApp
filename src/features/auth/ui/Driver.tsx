@@ -58,6 +58,7 @@ export const DriverScreen = () => {
                                         <TextInput 
                                             value={value}
                                             placeholder='Фамилия *'
+                                            placeholderTextColor={"#808080"}
                                             onChangeText={onChange}
                                             style={[styles.input, styles.inputBorder]}
                                         />
@@ -72,6 +73,7 @@ export const DriverScreen = () => {
                                         <TextInput 
                                             value={value}
                                             placeholder='Имя *'
+                                            placeholderTextColor={"#808080"}
                                             onChangeText={onChange}
                                             style={[styles.input, styles.inputBorder]}
                                         />
@@ -85,6 +87,7 @@ export const DriverScreen = () => {
                                         <TextInput 
                                             value={value}
                                             placeholder='Отчество'
+                                            placeholderTextColor={"#808080"}
                                             onChangeText={onChange}
                                             style={styles.input}
                                         />
