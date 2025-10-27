@@ -1,0 +1,159 @@
+import { createContext, useContext, useEffect, useState } from "react";
+import { useForm, useFormState } from "react-hook-form";
+import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+import { DateTime } from "luxon";
+import { Platform } from "react-native";
+import { dateFormat } from "../../../shared/lib/date";
+import { useAppFlow } from "../../../processes/app-flow";
+
+export const AuthContext = createContext({} as ReturnType<typeof useAuth>);
+export const useAuthContext = () => useContext(AuthContext);
+export const { Provider: AuthContextProvider } = AuthContext;
+
+
+type UserIn = {
+    phone: string
+    code: string
+    role: string
+    lastname: string
+    name: string
+    surname: string
+    birthday: string
+    citizenship: string
+    isWhatsApp: string
+    additionalPhone: string
+    isWhatsAppAditional: string
+    vy: string
+    issueDate: string
+}
+
+const defaultValues = {
+    phone: "",
+    role: "",
+    code: "",
+    lastname: "",
+    name: "",
+    surname: "",
+    birthday: "",
+    citizenship: "",
+    isWhatsApp: "-",
+    additionalPhone: "",
+    isWhatsAppAditional: "-",
+    vy: "",
+    issueDate: ""
+}
+
+export const useAuth = () => {
+    const { control, handleSubmit, reset, getValues, watch, setValue, setError, clearErrors } = useForm<UserIn>({
+        mode: "onChange",
+        defaultValues,
+    });
+    const { errors } = useFormState<UserIn>({ control });
+    const {signIn, signOut, state} = useAppFlow()
+    const [loading, setLoading] = useState<boolean>(false)
+    const [isProfile, setIsProfile] = useState<boolean>(false)
+    const birthdayValue = watch("birthday");
+    const initialDate = birthdayValue
+        ? DateTime.fromISO(birthdayValue).toJSDate()
+        : new Date();
+
+    const handleDatePicker = () => {
+        if (Platform.OS === "android") {
+            DateTimePickerAndroid.open({
+                mode: "date",
+                value: initialDate,
+                positiveButton: { label: "Выбрать", textColor: "#01163E" },
+                negativeButton: { label: "Отмена", textColor: "#01163E" },
+                maximumDate: DateTime.now().toJSDate(),
+                minimumDate: DateTime.fromObject({
+                    year: 1950,
+                    month: 1,
+                    day: 1,
+                }).toJSDate(),
+                onChange(e, selectedDate: any) {
+                    if (selectedDate) {
+                        const selected = DateTime.fromJSDate(selectedDate);
+                        const formatted = selected.toISODate();
+                        setValue("birthday", `${dateFormat(formatted)}`);
+                        
+                        const now = DateTime.now();
+                        const age = now.diff(selected, "years").years;
+                        if (age < 18) {
+                            setError("birthday", { type: "validate", message: "Возраст должен быть не менее 18 лет" });
+                            return;
+                        }
+                        if (age >= 65) {
+                            setError("birthday", { type: "validate", message: "Возраст должен быть меньше 65 лет" });
+                            return;
+                        }
+                        clearErrors("birthday");
+                    }
+                },
+            })
+        }
+    }
+    
+    const onSubmit = handleSubmit(async (formData) => {
+        setLoading(true)
+        const delay = (ms: number) => new Promise<void>((resolve) => {
+            setTimeout(() => resolve(), ms)
+        });
+        await delay(1000)
+        signIn(JSON.stringify(formData))
+        setLoading(false)
+    }); 
+
+    const checkDriver = async () => {
+        if (state.token !== null) {
+            setIsProfile(true)
+            const driverParse = JSON.parse(state.token);
+            const {
+                lastname,  
+                phone,
+                name,
+                surname,
+                birthday,
+                citizenship,
+                isWhatsApp,
+                additionalPhone,
+                isWhatsAppAditional,
+                vy,
+                issueDate,
+            } = driverParse
+            
+            setValue('lastname', lastname)
+            setValue('name', name)
+            setValue('surname', surname)
+            setValue('phone', phone)
+            setValue('birthday', birthday)
+            setValue('citizenship', citizenship)
+            setValue('isWhatsApp', isWhatsApp)
+            setValue('additionalPhone', additionalPhone)
+            setValue('isWhatsAppAditional', isWhatsAppAditional)
+            setValue('vy', vy)
+            setValue('issueDate', issueDate)
+        }
+    }
+
+    const handleLogout = async () => {
+        signOut()
+        reset(defaultValues)
+    }
+
+    useEffect(() => {
+        checkDriver()
+    }, [state]);
+
+    return { 
+        control,
+        getValues,
+        watch,
+        setValue,
+        errors,
+        handleDatePicker,
+        onSubmit,
+        loading,
+        isProfile,
+        handleLogout
+    };
+};
