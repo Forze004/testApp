@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { StyleSheet, View, TextInput, Pressable, ScrollView, Alert } from 'react-native'
 import { TextButton } from '../../../shared/ui/text-button/text-button'
 import {KeyboardAvoidingWrapper, Info, Spacing} from '../../../shared/ui/layouts'
@@ -11,11 +11,9 @@ import { Controller } from 'react-hook-form'
 import { Modal } from './Modal'
 import { getRules } from '../../../shared/constants/rules'
 import { useTranslation } from 'react-i18next'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { LANGUAGE_KEY } from '../../../shared/constants/key'
 
 export const DriverScreen = () => {
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const { 
         control, 
         watch, 
@@ -25,35 +23,17 @@ export const DriverScreen = () => {
         onSubmit, 
         loading, 
         isProfile,
-        handleLogout
+        handleLogout,
+        language,
+        modalLanguage,
+        handleLanguage,
+        toggleModalLanguage
     } = useAuthContext() 
     const rules = getRules(t);
-
     const [modalCitizenship, setModalCitizenship] = useState<boolean>(false);
     const [modalIsWhatsApp, setModalIsWhatsApp] = useState<boolean>(false);
-    const [modalLanguage, setModalLanguage] = useState<boolean>(false);
-    const [language, setLanguage] = useState<string>('');
     const [modalIsWhatsAppAditional, setModalIsWhatsAppAditional] = useState<boolean>(false);
-
-    const handleSetLanguage = async () => {
-       const lang =  await AsyncStorage.getItem(LANGUAGE_KEY)
-       if (lang) {
-         setLanguage(lang)
-       }
-    }
-
-    const handleLanguage = async (value: string) => {
-        const lang = value === "English" ? "en" : "ru"
-        await AsyncStorage.setItem(LANGUAGE_KEY, lang)
-        i18n.changeLanguage(lang)
-        setLanguage(lang)
-        setModalLanguage(false)
-    }
-
-    useLayoutEffect(() => {
-        handleSetLanguage()
-    }, [])
-
+ 
     return (
         <KeyboardAvoidingWrapper style={styles.container}>
             <View style={styles.container}>
@@ -80,7 +60,7 @@ export const DriverScreen = () => {
                                 isProfile && 
                                 <View style={styles.inputWrapper}>
                                     <Selector
-                                        handle={() => setModalLanguage(true)}
+                                        handle={toggleModalLanguage}
                                         label={t('language')}
                                         showStar={false}
                                         value={language == "en" ? "English" : "Русский"}
@@ -259,6 +239,7 @@ export const DriverScreen = () => {
                                                     value={value}
                                                     style={styles.inputSelector}
                                                     placeholder={t('vuNumber')}
+                                                    keyboardType="numeric"
                                                     onChangeText={onChange}
                                                     placeholderTextColor={"#252526"}
                                                 />
@@ -329,7 +310,7 @@ export const DriverScreen = () => {
                 <Modal 
                     modalVisible={modalLanguage}
                     data={[{value: "Русский"}, {value: "English"}]}
-                    handleClose={() => setModalLanguage(false)}
+                    handleClose={toggleModalLanguage}
                     handleSelectValue={handleLanguage}
                 /> 
                 

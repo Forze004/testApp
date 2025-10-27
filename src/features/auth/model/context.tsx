@@ -6,6 +6,8 @@ import { Platform } from "react-native";
 import { dateFormat } from "../../../shared/lib/date";
 import { useAppFlow } from "../../../processes/app-flow";
 import { useTranslation } from "react-i18next";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LANGUAGE_KEY } from "../../../shared/constants/key";
 
 export const AuthContext = createContext({} as ReturnType<typeof useAuth>);
 export const useAuthContext = () => useContext(AuthContext);
@@ -45,7 +47,7 @@ const defaultValues = {
 }
 
 export const useAuth = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { control, handleSubmit, reset, getValues, watch, setValue, setError, clearErrors } = useForm<UserIn>({
         mode: "onChange",
         defaultValues,
@@ -54,6 +56,8 @@ export const useAuth = () => {
     const {signIn, signOut, state} = useAppFlow()
     const [loading, setLoading] = useState<boolean>(false)
     const [isProfile, setIsProfile] = useState<boolean>(false)
+    const [modalLanguage, setModalLanguage] = useState<boolean>(false);
+    const [language, setLanguage] = useState<string>('');
     const birthdayValue = watch("birthday");
     const initialDate = birthdayValue
         ? DateTime.fromISO(birthdayValue).toJSDate()
@@ -142,7 +146,26 @@ export const useAuth = () => {
         reset(defaultValues)
     }
 
+    const handleSetLanguage = async () => {
+       const lang =  await AsyncStorage.getItem(LANGUAGE_KEY)
+       if (lang) {
+         setLanguage(lang)
+       }
+    }
+
+    const handleLanguage = async (value: string) => {
+        const lang = value === "English" ? "en" : "ru"
+        await AsyncStorage.setItem(LANGUAGE_KEY, lang)
+        i18n.changeLanguage(lang)
+        setLanguage(lang)
+        setModalLanguage(false)
+    }
+
+    const toggleModalLanguage = () => setModalLanguage(prev => !prev)
+
+
     useEffect(() => {
+        handleSetLanguage()
         checkDriver()
     }, [state]);
 
@@ -156,6 +179,10 @@ export const useAuth = () => {
         onSubmit,
         loading,
         isProfile,
-        handleLogout
+        handleLogout,
+        language,
+        modalLanguage,
+        handleLanguage,
+        toggleModalLanguage
     };
 };

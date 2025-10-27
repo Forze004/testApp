@@ -1,8 +1,9 @@
 import React, { useRef } from 'react'
 import { Pressable, StyleSheet, TextInput, View } from 'react-native'
-import { RegularText, SemiboldText } from '../texts'
+import { SemiboldText } from '../texts'
 import { ErrorsInput } from './errors'
 import { useTranslation } from 'react-i18next'
+import { SCREEN_WIDTH } from '../../constants/dimensions'
 
 type CodeInputProps = {
   code: string
@@ -59,9 +60,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     input: {
-        marginHorizontal: 7,
-        width: 50,
-        height: 56,
+        marginHorizontal: 7, 
+        width: SCREEN_WIDTH / 8,
+        height: SCREEN_WIDTH / 8,
         borderRadius: 8,
         justifyContent: 'center',
         alignItems: 'center',
